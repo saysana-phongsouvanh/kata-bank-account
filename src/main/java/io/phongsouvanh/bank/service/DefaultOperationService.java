@@ -1,6 +1,7 @@
 package io.phongsouvanh.bank.service;
 
 import io.phongsouvanh.bank.account.Amount;
+import io.phongsouvanh.bank.exceptions.OutOfBalanceException;
 import io.phongsouvanh.bank.operations.Operation;
 import io.phongsouvanh.bank.operations.OperationDao;
 import io.phongsouvanh.bank.operations.OperationType;
@@ -27,6 +28,19 @@ public class DefaultOperationService implements OperationService {
 
         Operation currentOperation = new Operation(
                 accountId, OperationType.DEPOSIT, amount, LocalDateTime.now(clock), newBalance
+        );
+        return operationDao.save(currentOperation);
+    }
+
+    @Override
+    public Operation withdrawal(UUID accountId, Amount amount) throws OutOfBalanceException {
+        BigDecimal oldBalance = operationDao.getAccountBalanceById(accountId);
+        BigDecimal newBalance = oldBalance.subtract(amount.getValue());
+
+        if(newBalance.compareTo(BigDecimal.ZERO) <= 0) throw new OutOfBalanceException();
+
+        Operation currentOperation = new Operation(
+                accountId, OperationType.WITHDRAWAL, amount, LocalDateTime.now(clock), newBalance
         );
         return operationDao.save(currentOperation);
     }
