@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class Amount {
 
-    private BigDecimal value;
+    private final BigDecimal value;
 
     public Amount(BigDecimal value) throws NegativeAmountException {
         if(value.compareTo(BigDecimal.ZERO) < 0) throw new NegativeAmountException();
@@ -29,5 +29,10 @@ public class Amount {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }
