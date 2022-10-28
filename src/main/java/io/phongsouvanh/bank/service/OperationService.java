@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface OperationService {
     Operation deposit(UUID accountId, Amount amount);
-    Operation withdrawal(UUID accountId, Amount amount) throws OutOfBalanceException;
-
+    Operation withdraw(UUID accountId, Amount amount) throws OutOfBalanceException;
+    void printAccountStatement(UUID accountId);
 }

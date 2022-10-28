@@ -3,27 +3,23 @@ package io.phongsouvanh.bank.statements;
 import io.phongsouvanh.bank.operations.Operation;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 public class Statement {
 
     private final UUID accountId;
     private BigDecimal balance;
-    private final LocalDateTime date;
+    private final LocalDate date;
     private List<Operation> operations = new ArrayList<>();
 
-    public Statement(UUID accountId, LocalDateTime date) {
+    public Statement(UUID accountId, LocalDate date) {
         this.accountId = accountId;
         this.date = date;
     }
 
-    public Statement(UUID accountId, LocalDateTime date,  List<Operation> operations) {
-        this.accountId = accountId;
-        this.date = date;
+    public Statement(UUID accountId, LocalDate date, List<Operation> operations) {
+        this(accountId, date);
         this.operations = operations;
         updateAccountDetails();
     }
@@ -38,7 +34,7 @@ public class Statement {
         updateAccountDetails();
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 

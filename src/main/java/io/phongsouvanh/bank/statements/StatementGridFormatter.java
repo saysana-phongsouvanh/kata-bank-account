@@ -5,17 +5,13 @@ import io.phongsouvanh.bank.operations.OperationType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class StatementGridFormatter implements StatementFormatter {
 
     static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final static int gridSize = 102;
 
@@ -26,21 +22,23 @@ public class StatementGridFormatter implements StatementFormatter {
         formattedStatement.addAll(formatAccountDetails(statement.getAccountId(), statement.getBalance()));
         formattedStatement.addAll(formatOperationHeader());
 
-        if(statement.getOperations().size() > 0) {
-            statement.getOperations().forEach(operation -> formattedStatement.add(formatOperationLine(operation)));
-        } else {
+        if(statement.getOperations().isEmpty()) {
             formattedStatement.add(String.format("|  %-100s|", "No operations were found for this account"));
+        } else {
+            for (Operation operation : statement.getOperations()) {
+                formattedStatement.add(formatOperationLine(operation));
+            }
         }
 
         formattedStatement.add(formatSeparator());
         return formattedStatement;
     }
 
-    private List<String> formatStatementHeader(LocalDateTime date) {
+    private List<String> formatStatementHeader(LocalDate date) {
         return Arrays.asList(
           formatSeparator(),
           formatEmptyLine(),
-          "|" + centerString(gridSize, "ACCOUNT STATEMENT OF " + date.format(dateFormatter))  + "|",
+          "|" + centerString("ACCOUNT STATEMENT OF " + date)  + "|",
           formatEmptyLine()
         );
     }
@@ -48,7 +46,7 @@ public class StatementGridFormatter implements StatementFormatter {
     private List<String> formatAccountDetails(UUID accountId, BigDecimal balance) {
         return Arrays.asList(
             formatSeparator(),
-            "|" + centerString(gridSize, "ACCOUNT DETAILS") + "|",
+            "|" + centerString("ACCOUNT DETAILS") + "|",
             formatSeparator(),
             String.format("|  %-20s %-77s  |", "Account Number", accountId.toString()),
             String.format("|  %-20s %-77s  |", "Balance", balance.setScale(2, RoundingMode.HALF_EVEN) + "€"),
@@ -64,8 +62,8 @@ public class StatementGridFormatter implements StatementFormatter {
         );
     }
 
-    private String centerString (int width, String s) {
-        return String.format("%-" + width  + "s", String.format("%" + (s.length() + (width - s.length()) / 2) + "s", s));
+    private String centerString (String s) {
+        return String.format("%-" + StatementGridFormatter.gridSize + "s", String.format("%" + (s.length() + (StatementGridFormatter.gridSize - s.length()) / 2) + "s", s));
     }
 
     private String formatSeparator() {
@@ -79,9 +77,9 @@ public class StatementGridFormatter implements StatementFormatter {
     private String formatOperationLine(Operation operation){
         String type = operation.type().toString();
         String date = operation.date().format(dateTimeFormatter);
-        String amount = operation.amount().getValue().setScale(2, RoundingMode.HALF_EVEN).toString() + "€";
+        String amount = operation.amount().getValue().setScale(2, RoundingMode.HALF_EVEN) + "€";
         amount = operation.type().equals(OperationType.WITHDRAWAL) ? "-" + amount : "+" + amount;
-        String balance = operation.balance().setScale(2, RoundingMode.HALF_EVEN).toString() + "€";
+        String balance = operation.balance().setScale(2, RoundingMode.HALF_EVEN) + "€";
         return String.format("|  %-15s %-25s %-25s %-30s  |", type, date, amount, balance);
     }
 
